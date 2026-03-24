@@ -32,7 +32,7 @@ const pool = new Pool({
 const JWT_SECRET = process.env.JWT_SECRET as string;
 if (!JWT_SECRET) {
   console.error('CRITICAL: JWT_SECRET not found in environment variables.');
-  process.exit(1);
+  // No Vercel, não queremos dar exit(1) no build, mas sim logar o erro
 }
 
 function extrairToken(auth?: string) {
@@ -58,9 +58,6 @@ app.get('/api/jogos', async (req: express.Request, res: express.Response) => {
     if (emPromocao === 'true') { where += ` AND j.em_promocao = TRUE`; }
     if (destaqueHoje === 'true') { where += ` AND j.destaque_hoje = TRUE`; }
 
-    // No filtro de mais vendido, removemos o filtro por flag e usamos a ordenação por cliques_afiliado
-    // como se cada clique fosse uma venda.
-    
     if (plataforma) {
       where += ` AND EXISTS (
         SELECT 1 FROM loja.links_afiliado la2
@@ -85,7 +82,6 @@ app.get('/api/jogos', async (req: express.Request, res: express.Response) => {
       i++;
     }
 
-    // Ordenação prioritária
     let order = `j.destaque DESC, j.cliques_afiliado DESC, j.created_at DESC`;
     if (maisVendido === 'true') {
       order = `j.cliques_afiliado DESC, ` + order;
@@ -133,7 +129,6 @@ app.get('/api/jogos/:slug', async (req: express.Request, res: express.Response) 
   const { slug } = req.params;
 
   try {
-    // Incrementar visualizações
     await pool.query(`UPDATE loja.jogos SET visualizacoes = visualizacoes + 1 WHERE slug = $1`, [slug]);
 
     const resultado = await pool.query(`
@@ -197,7 +192,6 @@ app.get('/api/jogos/:slug', async (req: express.Request, res: express.Response) 
   }
 });
 
-// Registrar clique em link afiliado
 app.post('/api/jogos/:jogoId/clique/:linkId', async (req: express.Request, res: express.Response) => {
   const { jogoId, linkId } = req.params;
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -210,7 +204,6 @@ app.post('/api/jogos/:jogoId/clique/:linkId', async (req: express.Request, res: 
       VALUES ($1, $2, $3, $4)
     `, [linkId, jogoId, ip, ua]);
 
-    // Buscar a URL para redirecionar
     const link = await pool.query(`SELECT url_afiliado FROM loja.links_afiliado WHERE id = $1`, [linkId]);
     if (link.rows[0]) {
       res.json({ url: link.rows[0].url_afiliado });
@@ -303,7 +296,6 @@ app.post('/api/admin/jogos', authMiddleware, async (req: express.Request, res: e
   } = req.body;
 
   try {
-    // Se for destaque de hoje, remover de todos os outros
     if (destaqueHoje) {
       await pool.query(`UPDATE loja.jogos SET destaque_hoje = FALSE`);
     }
@@ -323,11 +315,6 @@ app.post('/api/admin/jogos', authMiddleware, async (req: express.Request, res: e
 
     const jogoId = r.rows[0].id;
 
-    if (plataformas?.length) {
-      // O mapeamento de plataformas agora é automático via links_afiliado.
-      // Mantemos este bloco vazio ou removemos se a tabela loja.jogos_plataformas for deletada futuramente.
-      // await pool.query(`DELETE FROM loja.jogos_plataformas WHERE jogo_id = $1`, [jogoId]);
-    }
     if (categorias?.length) {
       for (const cid of categorias) {
         await pool.query(`INSERT INTO loja.jogos_categorias (jogo_id, categoria_id) VALUES ($1,$2) ON CONFLICT DO NOTHING`, [jogoId, cid]);
@@ -346,7 +333,6 @@ app.put('/api/admin/jogos/:id', authMiddleware, async (req: express.Request, res
   const fields = req.body;
 
   try {
-    // Se for destaque de hoje, remover de todos os outros
     if (fields.destaqueHoje === true || fields.destaqueHoje === 'true') {
       await pool.query(`UPDATE loja.jogos SET destaque_hoje = FALSE`);
     }
@@ -383,13 +369,6 @@ app.put('/api/admin/jogos/:id', authMiddleware, async (req: express.Request, res
       id
     ]);
 
-    // Atualizar plataformas
-    if (fields.plataformas) {
-      // O mapeamento agora é automático. O campo é ignorado.
-      // await pool.query(`DELETE FROM loja.jogos_plataformas WHERE jogo_id = $1`, [id]);
-    }
-
-    // Atualizar categorias
     if (fields.categorias) {
       await pool.query(`DELETE FROM loja.jogos_categorias WHERE jogo_id = $1`, [id]);
       for (const cid of fields.categorias) {
@@ -407,14 +386,10 @@ app.put('/api/admin/jogos/:id', authMiddleware, async (req: express.Request, res
 app.delete('/api/admin/jogos/:id', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
-    // Excluir logs de cliques primeiro
     await pool.query(`DELETE FROM loja.log_cliques WHERE jogo_id = $1`, [id]);
-    // Excluir links relacionados
     await pool.query(`DELETE FROM loja.links_afiliado WHERE jogo_id = $1`, [id]);
-    // Excluir relações N-N
     await pool.query(`DELETE FROM loja.jogos_plataformas WHERE jogo_id = $1`, [id]);
     await pool.query(`DELETE FROM loja.jogos_categorias WHERE jogo_id = $1`, [id]);
-    // Excluir o jogo
     await pool.query(`DELETE FROM loja.jogos WHERE id = $1`, [id]);
     res.status(204).send();
   } catch (e) {
@@ -499,12 +474,11 @@ app.post('/api/admin/jogos/:jogoId/links', authMiddleware, async (req: express.R
   const { plataformaId, parceiroId, urlAfiliado, urlScraping, codigoCupom, precoLoja, precoLojaComCupom, destaque, ordem, tipoMidia } = req.body;
 
   try {
-    // Buscar nome da loja do parceiro para compatibilidade
     const pRes = await pool.query('SELECT nome FROM loja.parceiros WHERE id = $1', [parceiroId]);
     const nomeLoja = pRes.rows[0]?.nome || 'Loja';
 
     const r = await pool.query(`
-      INSERT INTO loja.links_afiliado (jogo_id, plataforma_id, parceiro_id, nome_loja, url_afiliado, url_scraping, codigo_cupom, preco_loja, preco_loja_com_cupom, destaque, ordem, tipo_midia)
+      INSERT INTO loja.links_afiliado (jogo_id, plataforma_id, parceiro_id, nome_loja, url_afiliado, url_scraping, codigo_cupom, preco_loja, preco_lo_ja_com_cupom, destaque, ordem, tipo_midia)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id
     `, [jogoId, plataformaId, parceiroId, nomeLoja, urlAfiliado, urlScraping, codigoCupom, precoLoja, precoLojaComCupom, destaque || false, ordem || 0, tipoMidia || 'Mídia digital']);
     res.status(201).json({ id: r.rows[0].id });
@@ -614,6 +588,12 @@ app.delete('/api/admin/categorias/:id', authMiddleware, async (req: express.Requ
   } catch (e) { res.status(500).json({ erro: 'Erro ao excluir categoria' }); }
 });
 
-app.listen(port, () => {
-  console.log(`🎮 Checkpoint Digital Server rodando na porta ${port}`);
-});
+// No Vercel, exportamos o app para que ele seja tratado como Serverless Function
+export default app;
+
+// Mantemos o listen apenas para desenvolvimento local
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`🎮 Checkpoint Digital Server rodando na porta ${port}`);
+  });
+}

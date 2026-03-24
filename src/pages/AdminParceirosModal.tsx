@@ -172,7 +172,7 @@ const AdminParceirosModal: React.FC<Props> = ({ onClose }) => {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1 flex items-center gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1 items-center gap-2">
                   <ImageIcon className="w-3 h-3" /> Logo do Parceiro
                 </label>
                 

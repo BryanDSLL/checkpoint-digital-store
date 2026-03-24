@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Jogo, Plataforma, Categoria, FiltrosJogo, Parceiro } from '@/types';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  baseURL: import.meta.env.VITE_API_URL || '',
 });
 
 // Mapear snake_case → camelCase do jogo
@@ -70,13 +70,13 @@ export async function registrarClique(jogoId: number, linkId: number): Promise<s
 export async function listarPlataformas(): Promise<Plataforma[]> {
   const res = await api.get('/api/plataformas');
   const data = Array.isArray(res.data) ? res.data : [];
-  return data.map((p: Record<string, unknown>) => ({
-    id: p.id,
-    nome: p.nome,
-    slug: p.slug,
-    iconeUrl: p.icone_url,
-    corHex: p.cor_hex,
-    ativo: p.ativo,
+  return data.map((p: Record<string, any>) => ({
+    id: p.id as number,
+    nome: p.nome as string,
+    slug: p.slug as string,
+    iconeUrl: p.icone_url as string | undefined,
+    corHex: p.cor_hex as string,
+    ativo: p.ativo as boolean,
   }));
 }
 
