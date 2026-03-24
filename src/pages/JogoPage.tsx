@@ -181,7 +181,10 @@ const JogoPage: React.FC = () => {
             {/* Description */}
             <div className="glass-card rounded-xl p-5 mb-6">
               <h3 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground mb-3">Sobre o Jogo</h3>
-              <p className="text-sm text-foreground/80 leading-relaxed">{jogo.descricao}</p>
+              <div 
+                className="text-sm text-foreground/80 leading-relaxed space-y-4"
+                dangerouslySetInnerHTML={{ __html: jogo.descricao }}
+              />
               {jogo.tags && jogo.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {jogo.tags.map(t => (
@@ -209,7 +212,6 @@ const JogoPage: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {linksOrdenados.map(link => {
-                    const plataforma = jogo.plataformas?.find(p => p.id === link.plataformaId);
                     return (
                       <div key={link.id}
                         className={`rounded-xl border p-4 transition-all ${
@@ -220,7 +222,11 @@ const JogoPage: React.FC = () => {
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             {/* Store info & Prices */}
                             <div className="flex items-center gap-4 flex-1 min-w-0">
-                              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
+                              <div 
+                                onClick={(e) => { e.preventDefault(); handleComprar(link); }}
+                                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner cursor-pointer hover:opacity-80 transition-opacity"
+                                title="Ir à Loja"
+                              >
                                 {link.parceiro?.logoBase64 || link.parceiro?.logoUrl ? (
                                   <img 
                                     src={link.parceiro.logoBase64 || link.parceiro.logoUrl} 
@@ -242,12 +248,12 @@ const JogoPage: React.FC = () => {
                                         ⭐ MELHOR OFERTA
                                       </span>
                                     )}
-                                    {plataforma && (
-                                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-white/5 text-muted-foreground/70 uppercase tracking-tighter border border-white/5">
-                                        <div className="w-1 h-1 rounded-full" style={{ background: plataforma.corHex }} />
-                                        {plataforma.nome}
+                                    {link.plataformasInfo && link.plataformasInfo.map((p: any) => (
+                                      <span key={p.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-white/5 text-muted-foreground/70 uppercase tracking-tighter border border-white/5">
+                                        <div className="w-1 h-1 rounded-full" style={{ background: p.corHex }} />
+                                        {p.nome}
                                       </span>
-                                    )}
+                                    ))}
                                   </div>
                                 </div>
 

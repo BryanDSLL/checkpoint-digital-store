@@ -7,6 +7,7 @@
     "dev": "vite",
     "server": "tsx api/index.ts",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
+    "executar": "npm run dev:all",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

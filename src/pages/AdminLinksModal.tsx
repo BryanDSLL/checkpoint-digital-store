@@ -17,7 +17,7 @@ const linkSchema = z.object({
   tipoMidia: z.enum(['Mídia digital', 'Mídia física', 'Key']).default('Mídia digital'),
   destaque: z.boolean().default(false),
   ordem: z.string().refine(v => !isNaN(Number(v)), 'Ordem inválida'),
-  plataformaId: z.string().min(1, 'Selecione uma plataforma'),
+  plataformasIds: z.array(z.string()).min(1, 'Selecione no mínimo 1 plataforma'),
 });
 
 type LinkFormValues = z.infer<typeof linkSchema>;
@@ -57,7 +57,7 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
     defaultValues: {
       parceiroId: '', urlAfiliado: '', urlScraping: '', codigoCupom: '',
       precoLoja: '', precoLojaComCupom: '', destaque: false,
-      ordem: '0', plataformaId: '', tipoMidia: 'Mídia digital'
+      ordem: '0', plataformasIds: [], tipoMidia: 'Mídia digital'
     }
   });
 
@@ -66,7 +66,7 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
       const payload = {
         ...data,
         parceiroId: Number(data.parceiroId),
-        plataformaId: Number(data.plataformaId),
+        plataformasIds: data.plataformasIds.map(Number),
         precoLoja: data.precoLoja ? Number(data.precoLoja) : null,
         precoLojaComCupom: data.precoLojaComCupom ? Number(data.precoLojaComCupom) : null,
         codigoCupom: data.codigoCupom || null,
@@ -93,7 +93,7 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
   const handleEdit = (link: any) => {
     setEditingId(link.id);
     setValue('parceiroId', String(link.parceiro_id));
-    setValue('plataformaId', String(link.plataforma_id));
+    setValue('plataformasIds', link.plataformas_ids ? link.plataformas_ids.map(String) : []);
     setValue('urlAfiliado', link.url_afiliado);
     setValue('urlScraping', link.url_scraping || '');
     setValue('codigoCupom', link.codigo_cupom || '');
@@ -171,7 +171,9 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
                           <span className="font-bold text-sm">{link.parceiro_nome || link.nome_loja || 'Loja Oficial'}</span>
                           {link.destaque && <span className="text-[9px] font-black bg-primary text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">Melhor Oferta</span>}
                           <span className="text-[9px] font-bold text-primary/80 px-1.5 py-0.5 rounded bg-primary/5 border border-primary/10">{link.tipo_midia}</span>
-                          {link.plataforma_nome && <span className="text-[9px] font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-white/5">{link.plataforma_nome}</span>}
+                          {link.plataformas_info && link.plataformas_info.map((p: any) => (
+                            <span key={p.id} className="text-[9px] font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-white/5 border border-white/5 mr-1" style={{ borderColor: p.corHex }}>{p.nome}</span>
+                          ))}
                         </div>
                         <div className="flex flex-col gap-1 mb-2 max-w-[400px]">
                           <p className="text-[10px] text-muted-foreground truncate font-mono flex items-center gap-1" title={link.url_afiliado}>
@@ -253,13 +255,17 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 md:col-span-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1 block ml-1">Plataforma</label>
-                  <select {...register('plataformaId')} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-primary/50 transition-all">
-                    <option value="" className="bg-background">Selecione...</option>
-                    {plataformas.map(p => <option key={p.id} value={String(p.id)} className="bg-background">{p.nome}</option>)}
-                  </select>
-                  {errors.plataformaId && <span className="text-red-400 text-[9px] font-bold uppercase ml-1">{errors.plataformaId.message}</span>}
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block ml-1">Plataformas</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {plataformas.map((p: any) => (
+                      <label key={p.id} className="flex items-center gap-2 p-2 rounded-lg border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                        <input type="checkbox" value={String(p.id)} {...register('plataformasIds')} className="rounded border-white/10 bg-white/5 text-primary focus:ring-primary/20" />
+                        <span className="text-xs text-foreground font-medium">{p.nome}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.plataformasIds && <span className="text-red-400 text-[9px] font-bold uppercase ml-1 block mt-1">{errors.plataformasIds.message}</span>}
                 </div>
               </div>
 

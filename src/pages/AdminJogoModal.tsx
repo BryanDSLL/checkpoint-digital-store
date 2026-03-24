@@ -3,8 +3,8 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { X, Save, Loader2, Gamepad2, Image as ImageIcon, Star, Zap, TrendingUp, Tag, Info } from 'lucide-react';
-import { criarJogoAdmin, atualizarJogoAdmin, listarJogosAdmin, listarPlataformas, listarCategorias } from '@/services/api';
+import { X, Save, Loader2, Gamepad2, Image as ImageIcon, Star, Zap, TrendingUp, Tag, Info, Sparkles } from 'lucide-react';
+import { criarJogoAdmin, atualizarJogoAdmin, listarJogosAdmin, listarPlataformas, listarCategorias, api } from '@/services/api';
 import { toast } from 'sonner';
 
 const jogoSchema = z.object({
@@ -47,6 +47,36 @@ const AdminJogoModal: React.FC<Props> = ({ jogoId, onClose }) => {
   const [saving, setSaving] = useState(false);
   const [selectedCategorias, setSelectedCategorias] = useState<number[]>([]);
   const [previewImagem, setPreviewImagem] = useState<string | null>(null);
+  const [ajustandoIA, setAjustandoIA] = useState(false);
+
+  const handleIA = async () => {
+    const titulo = watch('titulo');
+    if (!titulo || titulo.length < 3) {
+      toast.error('Insira o título do jogo primeiro');
+      return;
+    }
+
+    setAjustandoIA(true);
+    try {
+      const res = await api.post('/api/admin/automacao/ajustar-ia', 
+        { titulo, descricao: watch('descricao') },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('gs_token')}` } }
+      );
+      
+      const dados = res.data;
+      if (dados.tituloLimpo) setValue('titulo', dados.tituloLimpo);
+      if (dados.descricaoLonga) setValue('descricao', dados.descricaoLonga);
+      if (dados.descricaoCurta) setValue('descricaoCurta', dados.descricaoCurta);
+      if (dados.classificacaoEtaria) setValue('classificacaoEtaria', dados.classificacaoEtaria);
+      if (dados.tags) setValue('tags', dados.tags.join(', '));
+      
+      toast.success('Dados ajustados com IA!');
+    } catch (e) {
+      toast.error('Falha ao processar com IA. Verifique sua chave API.');
+    } finally {
+      setAjustandoIA(false);
+    }
+  };
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<JogoFormValues>({
     resolver: zodResolver(jogoSchema),
@@ -219,9 +249,23 @@ const AdminJogoModal: React.FC<Props> = ({ jogoId, onClose }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1">Título do Jogo</label>
-                <input {...register('titulo')} className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-primary/50 transition-all" placeholder="Ex: Elden Ring" />
-                {errors.titulo && <span className="text-red-400 text-[10px] font-bold mt-1 ml-1 uppercase">{errors.titulo.message}</span>}
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1">Título do Jogo</label>
+                    <input {...register('titulo')} className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-primary/50 transition-all" placeholder="Ex: Elden Ring" />
+                    {errors.titulo && <span className="text-red-400 text-[10px] font-bold mt-1 ml-1 uppercase">{errors.titulo.message}</span>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleIA}
+                    disabled={ajustandoIA}
+                    className="h-12 px-4 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all flex items-center gap-2 group disabled:opacity-50"
+                    title="Ajustar dados com IA"
+                  >
+                    {ajustandoIA ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 group-hover:scale-125 transition-transform" />}
+                    <span className="text-[10px] font-black uppercase tracking-widest">IA</span>
+                  </button>
+                </div>
               </div>
               
               <div>
@@ -258,7 +302,7 @@ const AdminJogoModal: React.FC<Props> = ({ jogoId, onClose }) => {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1 flex items-center gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 block ml-1 items-center gap-2">
                   <ImageIcon className="w-3 h-3" /> Imagem de Capa (3:4)
                 </label>
                 

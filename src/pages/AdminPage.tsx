@@ -7,12 +7,13 @@ import * as z from 'zod';
 import {
   LayoutDashboard, LogOut, Plus, Trash2, Edit, ExternalLink,
   Gamepad2, Link2, MousePointer, Eye, TrendingUp, Settings,
-  AlertCircle, Loader2, Building2
+  AlertCircle, Loader2, Building2, Zap
 } from 'lucide-react';
 import { listarJogosAdmin, excluirJogoAdmin, loginAdmin, obterStats } from '@/services/api';
 import AdminJogoModal from './AdminJogoModal';
 import AdminLinksModal from './AdminLinksModal';
 import AdminParceirosModal from './AdminParceirosModal';
+import AdminAutomacaoModal from './AdminAutomacaoModal';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -30,6 +31,8 @@ const AdminPage: React.FC = () => {
   const [jogoModal, setJogoModal] = useState<{ open: boolean; id?: number }>({ open: false });
   const [linksModal, setLinksModal] = useState<{ open: boolean; jogoId?: number; jogoTitulo?: string }>({ open: false });
   const [parceirosModal, setParceirosModal] = useState(false);
+  const [automacaoModal, setAutomacaoModal] = useState(false);
+  const [busca, setBusca] = useState('');
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -212,6 +215,10 @@ const AdminPage: React.FC = () => {
             <LayoutDashboard className="w-5 h-5 text-primary" /> Gerenciar Jogos
           </h2>
           <div className="flex items-center gap-3">
+            <button onClick={() => setAutomacaoModal(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all text-sm font-bold shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]">
+              <Zap className="w-4 h-4 fill-current" /> Automação
+            </button>
             <button onClick={() => setParceirosModal(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:text-white hover:bg-white/10 transition-all text-sm font-bold">
               <Building2 className="w-4 h-4" /> Parceiros
@@ -243,6 +250,8 @@ const AdminPage: React.FC = () => {
                   <tr>
                     <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold">Jogo</th>
                     <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold hidden md:table-cell">Status</th>
+                    <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold hidden lg:table-cell">Plataformas</th>
+                    <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold hidden xl:table-cell">Preço</th>
                     <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold hidden lg:table-cell">Links</th>
                     <th className="py-3 px-4 text-left text-xs uppercase tracking-widest text-muted-foreground font-semibold hidden lg:table-cell">Views</th>
                     <th className="py-3 px-4 text-right text-xs uppercase tracking-widest text-muted-foreground font-semibold">Ações</th>
@@ -268,6 +277,25 @@ const AdminPage: React.FC = () => {
                           {jogo.lancamento && <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/20 text-green-400 font-bold">Lançamento</span>}
                           {jogo.em_promocao && <span className="px-1.5 py-0.5 rounded text-[10px] bg-secondary/20 text-secondary font-bold">Promoção</span>}
                           {!jogo.ativo && <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 font-bold">Inativo</span>}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 hidden lg:table-cell">
+                        <div className="flex flex-wrap gap-1 max-w-[150px]">
+                          {jogo.plataformas?.length > 0 ? jogo.plataformas.map((p: any) => (
+                            <span key={p.id} className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-muted-foreground whitespace-nowrap">{p.nome}</span>
+                          )) : <span className="text-xs text-muted-foreground opacity-50">—</span>}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 hidden xl:table-cell whitespace-nowrap">
+                        <div className="flex flex-col">
+                          {jogo.preco_com_cupom && jogo.preco_com_cupom !== jogo.preco_original ? (
+                            <>
+                              <span className="text-[10px] text-muted-foreground line-through">R$ {Number(jogo.preco_original).toFixed(2).replace('.', ',')}</span>
+                              <span className="text-xs font-bold text-green-400">R$ {Number(jogo.preco_com_cupom).toFixed(2).replace('.', ',')}</span>
+                            </>
+                          ) : (
+                             <span className="text-xs font-bold text-white">R$ {Number(jogo.preco_original || 0).toFixed(2).replace('.', ',')}</span>
+                          )}
                         </div>
                       </td>
                       <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground">
@@ -330,6 +358,11 @@ const AdminPage: React.FC = () => {
       {parceirosModal && (
         <AdminParceirosModal
           onClose={() => setParceirosModal(false)}
+        />
+      )}
+      {automacaoModal && (
+        <AdminAutomacaoModal
+          onClose={() => setAutomacaoModal(false)}
         />
       )}
     </div>

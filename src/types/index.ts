@@ -29,8 +29,9 @@ export interface Parceiro {
 export interface LinkAfiliado {
   id: number;
   jogoId: number;
-  plataformaId: number;
-  plataforma?: Plataforma;
+  plataformasIds?: number[];
+  plataformasInfo?: Plataforma[];
+  plataformaNome?: string;
   parceiroId: number;
   parceiro?: Parceiro;
   nomeLoja: string; // Mantido por compatibilidade
