@@ -68,14 +68,14 @@ const Navbar: React.FC = () => {
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 placeholder="Buscar jogo..."
-                className="w-44 h-9 bg-white/5 border border-white/10 rounded-lg pl-3 pr-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-orange-500/50 focus:bg-white/8 transition-all"
+                className="w-44 h-9 bg-white/5 border border-white/10 rounded-lg pl-3 pr-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
               />
-              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-500 transition-colors">
+              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                 <Search className="w-4 h-4" />
               </button>
             </form>
 
-            <Link to="/admin" className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-orange-500 hover:bg-orange-500/5 transition-all font-ui border border-transparent hover:border-orange-500/20">
+            <Link to="/admin" className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all font-ui border border-transparent hover:border-primary/20">
               Admin
             </Link>
 
@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 placeholder="Buscar jogo..."
-                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg pl-3 pr-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-orange-500/50"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg pl-3 pr-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
               />
               <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 <Search className="w-4 h-4" />

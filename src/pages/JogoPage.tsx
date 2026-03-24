@@ -217,81 +217,92 @@ const JogoPage: React.FC = () => {
                             ? 'border-primary/30 bg-primary/5 shadow-lg shadow-primary/10'
                             : 'border-white/10 bg-white/2 hover:border-white/20'
                         }`}>
-                        <div className="flex items-center justify-between gap-4">
-                          {/* Store info */}
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {link.parceiro?.logoUrl ? (
-                                <img src={link.parceiro.logoUrl} alt={link.parceiro.nome} className="w-full h-full object-contain p-1.5" />
-                              ) : (
-                                <ShoppingCart className="w-5 h-5 text-muted-foreground/50" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-bold text-sm truncate">{link.parceiro?.nome || link.nomeLoja}</span>
-                                {link.destaque && (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 flex-shrink-0">
-                                    ⭐ MELHOR OFERTA
-                                  </span>
-                                )}
-                                {plataforma && (
-                                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-white/5 text-muted-foreground flex-shrink-0">
-                                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: plataforma.corHex }} />
-                                    {plataforma.nome}
-                                  </span>
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            {/* Store info & Prices */}
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
+                                {link.parceiro?.logoBase64 || link.parceiro?.logoUrl ? (
+                                  <img 
+                                    src={link.parceiro.logoBase64 || link.parceiro.logoUrl} 
+                                    alt={link.parceiro.nome} 
+                                    className="w-full h-full object-cover" 
+                                  />
+                                ) : (
+                                  <ShoppingCart className="w-5 h-5 text-muted-foreground/30" />
                                 )}
                               </div>
-
-                              {/* Prices */}
-                              <div className="flex items-baseline gap-2">
-                                {link.precoLoja && link.precoLojaComCupom && link.precoLoja !== link.precoLojaComCupom && (
-                                  <span className="text-sm text-muted-foreground line-through">{formatPreco(link.precoLoja)}</span>
-                                )}
-                                {link.precoLojaComCupom ? (
-                                  <span className="text-xl font-black text-primary font-display">{formatPreco(link.precoLojaComCupom)}</span>
-                                ) : link.precoLoja ? (
-                                  <span className="text-xl font-black font-display">{formatPreco(link.precoLoja)}</span>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            {/* Coupon code */}
-                            {link.codigoCupom && (
-                              <div className="flex items-center gap-2 mt-2">
-                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/25 border-dashed">
-                                  <Tag className="w-3 h-3 text-primary" />
-                                  <span className="text-xs font-black text-primary tracking-widest">{link.codigoCupom}</span>
-                                  <button
-                                    onClick={() => copiarCupom(link.id, link.codigoCupom!)}
-                                    className="text-primary/60 hover:text-primary transition-colors">
-                                    {cupomCopiado === link.id
-                                      ? <Check className="w-3 h-3 text-green-400" />
-                                      : <Copy className="w-3 h-3" />}
-                                  </button>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                                  <span className="font-black text-sm tracking-tight text-white uppercase">
+                                    {link.parceiro?.nome || link.nomeLoja || 'Loja Oficial'}
+                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    {link.destaque && (
+                                      <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-primary/20 text-primary border border-primary/30 uppercase tracking-tighter">
+                                        ⭐ MELHOR OFERTA
+                                      </span>
+                                    )}
+                                    {plataforma && (
+                                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-white/5 text-muted-foreground/70 uppercase tracking-tighter border border-white/5">
+                                        <div className="w-1 h-1 rounded-full" style={{ background: plataforma.corHex }} />
+                                        {plataforma.nome}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
-                                <span className="text-[10px] text-muted-foreground">Cupom já no link!</span>
-                              </div>
-                            )}
-                          </div>
 
-                          {/* CTA Button */}
-                          <button
-                            onClick={() => handleComprar(link)}
-                            disabled={carregandoLink === link.id}
-                            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all ${
-                              link.destaque
-                                ? 'btn-neon text-white'
-                                : 'border border-white/20 hover:border-primary/30 hover:text-primary hover:bg-primary/5'
-                            } ${carregandoLink === link.id ? 'opacity-70 cursor-wait' : ''}`}>
-                            {carregandoLink === link.id ? (
-                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <ExternalLink className="w-4 h-4" />
-                            )}
-                            {link.destaque ? 'Comprar Agora' : 'Ir à Loja'}
-                          </button>
-                        </div>
+                                {/* Prices */}
+                                <div className="flex items-baseline gap-2">
+                                  {link.precoLoja && link.precoLojaComCupom && link.precoLoja !== link.precoLojaComCupom && (
+                                    <span className="text-xs text-muted-foreground/50 line-through font-medium">{formatPreco(link.precoLoja)}</span>
+                                  )}
+                                  {link.precoLojaComCupom ? (
+                                    <span className="text-xl font-black text-primary font-display tracking-tight">{formatPreco(link.precoLojaComCupom)}</span>
+                                  ) : link.precoLoja ? (
+                                    <span className="text-xl font-black font-display tracking-tight text-white">{formatPreco(link.precoLoja)}</span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Coupon & CTA Section */}
+                            <div className="flex flex-row items-center gap-4">
+                              {/* Coupon code */}
+                              {link.codigoCupom && (
+                                <div className="flex flex-col items-center gap-0.5 min-w-[120px]">
+                                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/25 border-dashed">
+                                    <Tag className="w-3 h-3 text-primary" />
+                                    <span className="text-xs font-black text-primary tracking-widest">{link.codigoCupom}</span>
+                                    <button
+                                      onClick={() => copiarCupom(link.id, link.codigoCupom!)}
+                                      className="ml-1 text-primary/60 hover:text-primary transition-all">
+                                      {cupomCopiado === link.id
+                                        ? <Check className="w-3 h-3 text-green-400" />
+                                        : <Copy className="w-3 h-3" />}
+                                    </button>
+                                  </div>
+                                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">Cupom já no link!</span>
+                                </div>
+                              )}
+
+                              {/* CTA Button */}
+                              <button
+                                onClick={() => handleComprar(link)}
+                                disabled={carregandoLink === link.id}
+                                className={`h-11 min-w-[150px] flex items-center justify-center gap-2 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                                  link.destaque
+                                    ? 'btn-neon text-white shadow-lg shadow-primary/20'
+                                    : 'bg-white/5 border border-white/10 hover:border-primary/40 hover:text-primary hover:bg-primary/5'
+                                } ${carregandoLink === link.id ? 'opacity-70 cursor-wait' : ''}`}>
+                                {carregandoLink === link.id ? (
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <ExternalLink className="w-4 h-4" />
+                                )}
+                                {link.destaque ? 'Comprar' : 'Ir à Loja'}
+                              </button>
+                            </div>
+                          </div>
                       </div>
                     );
                   })}

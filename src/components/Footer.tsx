@@ -48,7 +48,7 @@ const Footer: React.FC = () => (
               { label: 'Mais Vendidos', href: '/jogos?maisVendido=true' },
             ].map(l => (
               <li key={l.label}>
-                <Link to={l.href} className="text-sm text-muted-foreground hover:text-orange-400 transition-colors link-hover">
+                <Link to={l.href} className="text-sm text-muted-foreground hover:text-primary transition-colors link-hover">
                   {l.label}
                 </Link>
               </li>
@@ -63,15 +63,15 @@ const Footer: React.FC = () => (
               'Sobre Nós', 'Política de Privacidade', 'Como Funciona', 'Contato',
             ].map(label => (
               <li key={label}>
-                <Link to="#" className="text-sm text-muted-foreground hover:text-orange-400 transition-colors link-hover">
+                <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors link-hover">
                   {label}
                 </Link>
               </li>
             ))}
           </ul>
 
-          <div className="mt-6 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-            <p className="text-xs text-orange-400/80 font-semibold mb-1">⚠️ Aviso</p>
+          <div className="mt-6 p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-xs text-primary/80 font-semibold mb-1">⚠️ Aviso</p>
             <p className="text-xs text-muted-foreground">
               Somos uma plataforma de afiliados. As compras são realizadas diretamente nas lojas parceiras.
             </p>

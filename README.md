@@ -1,17 +1,17 @@
-# 🎮 GameStore Revenda
+# 🎮 CHECKPOINT DIGITAL
 
 Portal de revenda de jogos com sistema de links afiliados e cupons de desconto automáticos.
 
 ## Como Funciona
 
-1. **Cliente navega** pelo catálogo de jogos
+1. **Cliente navega** pelo catálogo de jogos na **CHECKPOINT DIGITAL**
 2. **Escolhe o jogo** e clica em "Comprar Agora" ou "Ir à Loja"
 3. **Sistema registra** o clique no banco de dados (para analytics)
 4. **Cliente é redirecionado** à loja oficial parceira com:
    - O produto já no carrinho
-   - O cupom de desconto já aplicado (via parâmetro na URL)
+   - O cupom de desconto já aplicado (via parâmetro na URL, ex: `CP-DIGITAL`)
 
-> **O segredo está na URL afiliada.** Ao cadastrar um link, você já inclui o `?ref=` e `?coupon=` no próprio link, então o redirecionamento é instantâneo e automático.
+> **O segredo está na URL afiliada.** Ao cadastrar um link, você já inclui o `?ref=` e `?coupon=CP-DIGITAL` no próprio link, então o redirecionamento é instantâneo e automático.
 
 ---
 
@@ -54,7 +54,7 @@ Execute os arquivos SQL na ordem:
 ### 4. Crie o usuário admin
 
 ```bash
-npx tsx scripts/criar-admin.ts "Seu Nome" "admin@seusite.com" "suaSenhaAqui"
+npx tsx scripts/criar-admin.ts "Admin Checkpoint" "admin@checkpoint.com" "suaSenhaAqui"
 ```
 
 ### 5. Inicie o projeto

@@ -21,6 +21,7 @@ export interface Parceiro {
   nome: string;
   slug: string;
   logoUrl?: string;
+  logoBase64?: string;
   temScraping: boolean;
   ativo: boolean;
 }

@@ -11,18 +11,27 @@ async function run() {
   try {
     console.log('Iniciando migração...');
     
-    // 1. Criar tabela de parceiros
+    // 1. Criar tabela de parceiros ou atualizar colunas
     await pool.query(`
       CREATE TABLE IF NOT EXISTS loja.parceiros (
         id SERIAL PRIMARY KEY,
         nome VARCHAR(100) NOT NULL UNIQUE,
         slug VARCHAR(100) NOT NULL UNIQUE,
         logo_url TEXT,
+        logo_base64 TEXT,
+        tem_scraping BOOLEAN DEFAULT FALSE,
         ativo BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('Tabela loja.parceiros garantida.');
+
+    // Garantir que as novas colunas existam se a tabela já existir
+    await pool.query(`
+      ALTER TABLE loja.parceiros 
+      ADD COLUMN IF NOT EXISTS logo_base64 TEXT,
+      ADD COLUMN IF NOT EXISTS tem_scraping BOOLEAN DEFAULT FALSE;
+    `);
+    console.log('Tabela loja.parceiros e colunas logo_base64/tem_scraping garantidas.');
 
     // 2. Adicionar colunas em links_afiliado
     await pool.query(`

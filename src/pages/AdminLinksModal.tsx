@@ -168,7 +168,7 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-bold text-sm">{link.parceiro_nome || link.nome_loja}</span>
+                          <span className="font-bold text-sm">{link.parceiro_nome || link.nome_loja || 'Loja Oficial'}</span>
                           {link.destaque && <span className="text-[9px] font-black bg-primary text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">Melhor Oferta</span>}
                           <span className="text-[9px] font-bold text-primary/80 px-1.5 py-0.5 rounded bg-primary/5 border border-primary/10">{link.tipo_midia}</span>
                           {link.plataforma_nome && <span className="text-[9px] font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-white/5">{link.plataforma_nome}</span>}
@@ -287,7 +287,7 @@ const AdminLinksModal: React.FC<Props> = ({ jogoId, jogoTitulo, onClose, onOpenP
                 </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1 block ml-1">Cupom</label>
-                  <input {...register('codigoCupom')} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-primary/50 transition-all" placeholder="CHECK10" />
+                  <input {...register('codigoCupom')} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-primary/50 transition-all" placeholder="CP-DIGITAL" />
                 </div>
               </div>
 

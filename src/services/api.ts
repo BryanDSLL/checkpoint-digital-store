@@ -69,7 +69,8 @@ export async function registrarClique(jogoId: number, linkId: number): Promise<s
 
 export async function listarPlataformas(): Promise<Plataforma[]> {
   const res = await api.get('/api/plataformas');
-  return res.data.map((p: Record<string, unknown>) => ({
+  const data = Array.isArray(res.data) ? res.data : [];
+  return data.map((p: Record<string, unknown>) => ({
     id: p.id,
     nome: p.nome,
     slug: p.slug,
@@ -81,7 +82,7 @@ export async function listarPlataformas(): Promise<Plataforma[]> {
 
 export async function listarCategorias(): Promise<Categoria[]> {
   const res = await api.get('/api/categorias');
-  return res.data;
+  return Array.isArray(res.data) ? res.data : [];
 }
 
 // Admin
@@ -100,7 +101,7 @@ const adminApi = () => ({
 
 export async function listarJogosAdmin() {
   const res = await api.get('/api/admin/jogos', adminApi());
-  return res.data;
+  return Array.isArray(res.data) ? res.data : [];
 }
 
 export async function criarJogoAdmin(payload: Record<string, unknown>) {
@@ -118,20 +119,20 @@ export async function excluirJogoAdmin(id: number) {
 
 export async function listarLinksAdmin(jogoId: number): Promise<import('@/types').LinkAfiliado[]> {
   const res = await api.get(`/api/admin/jogos/${jogoId}/links`, adminApi());
-  return res.data;
+  return Array.isArray(res.data) ? res.data : [];
 }
 
 export async function listarParceiros(): Promise<Parceiro[]> {
   const res = await api.get('/api/admin/parceiros', adminApi());
-  return res.data;
+  return Array.isArray(res.data) ? res.data : [];
 }
 
-export async function criarParceiro(data: { nome: string; logoUrl?: string; temScraping?: boolean }): Promise<Parceiro> {
+export async function criarParceiro(data: { nome: string; logoUrl?: string; logoBase64?: string; temScraping?: boolean }): Promise<Parceiro> {
   const res = await api.post('/api/admin/parceiros', data, adminApi());
   return res.data;
 }
 
-export async function atualizarParceiro(id: number, data: { nome?: string; logoUrl?: string; temScraping?: boolean; ativo?: boolean }): Promise<void> {
+export async function atualizarParceiro(id: number, data: { nome?: string; logoUrl?: string; logoBase64?: string; temScraping?: boolean; ativo?: boolean }): Promise<void> {
   await api.put(`/api/admin/parceiros/${id}`, data, adminApi());
 }
 

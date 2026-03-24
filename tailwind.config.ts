@@ -74,8 +74,8 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       backgroundImage: {
-        'gradient-neon': 'linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(270 91% 65%) 100%)',
-        'gradient-orange': 'linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(15 90% 48%) 100%)',
+        'gradient-neon': 'linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(262 83% 58%) 100%)',
+        'gradient-orange': 'linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(262 83% 58%) 100%)',
       },
     },
   },

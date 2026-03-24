@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS loja.parceiros (
     nome VARCHAR(100) NOT NULL UNIQUE, -- Ex: "Amazon", "Nuuvem", "PlayStation Store"
     slug VARCHAR(100) NOT NULL UNIQUE, -- Ex: "amazon", "nuuvem", "ps-store"
     logo_url TEXT,
+    logo_base64 TEXT, -- Armazenamento direto da imagem
+    tem_scraping BOOLEAN DEFAULT FALSE, -- Identifica se o parceiro suporta scraping de preços
     ativo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -94,7 +96,7 @@ CREATE TABLE IF NOT EXISTS loja.links_afiliado (
     url_scraping TEXT,        -- URL onde o robô buscará o preço original
     
     -- Cupom
-    codigo_cupom VARCHAR(50), -- Ex: "CHECKPOINT10"
+    codigo_cupom VARCHAR(50), -- Ex: "CP-DIGITAL"
     
     -- Preço exibido nessa loja específica
     preco_loja NUMERIC(10,2),

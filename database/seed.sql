@@ -216,8 +216,8 @@ WHERE j.slug = 'mortal-kombat-1' AND c.slug = 'luta';
 -- Elden Ring
 INSERT INTO loja.links_afiliado (jogo_id, plataforma_id, nome_loja, url_afiliado, codigo_cupom, preco_loja, preco_loja_com_cupom, destaque, ordem)
 SELECT j.id, p.id, 'Nuuvem', 
-    'https://www.nuuvem.com/item/elden-ring?ref=gamestore&coupon=GAMESTORE15',
-    'GAMESTORE15', 299.90, 254.90, TRUE, 1
+    'https://www.nuuvem.com/item/elden-ring?ref=gamestore&coupon=CP-DIGITAL',
+    'CP-DIGITAL', 299.90, 254.90, TRUE, 1
 FROM loja.jogos j, loja.plataformas p WHERE j.slug = 'elden-ring' AND p.slug = 'pc-steam';
 
 INSERT INTO loja.links_afiliado (jogo_id, plataforma_id, nome_loja, url_afiliado, codigo_cupom, preco_loja, preco_loja_com_cupom, destaque, ordem)
@@ -236,10 +236,10 @@ FROM loja.jogos j, loja.plataformas p WHERE j.slug = 'god-of-war-ragnarok' AND p
 -- Hogwarts Legacy
 INSERT INTO loja.links_afiliado (jogo_id, plataforma_id, nome_loja, url_afiliado, codigo_cupom, preco_loja, preco_loja_com_cupom, destaque, ordem)
 SELECT j.id, p.id, 'Nuuvem',
-    'https://www.nuuvem.com/item/hogwarts-legacy?ref=gamestore&coupon=GAMESTORE20',
-    'GAMESTORE20', 249.90, 199.90, TRUE, 1
+    'https://www.nuuvem.com/item/hogwarts-legacy?ref=gamestore&coupon=CP-DIGITAL',
+    'CP-DIGITAL', 249.90, 199.90, TRUE, 1
 FROM loja.jogos j, loja.plataformas p WHERE j.slug = 'hogwarts-legacy' AND p.slug = 'pc-steam';
 
 -- Admin padrão (troque a senha)
 INSERT INTO loja.usuarios (nome, email, senha_hash, role) VALUES
-('Admin', 'admin@gamestore.com', '$2b$10$PLACEHOLDER_HASH', 'admin');
+('Admin', 'admin@checkpoint.com', '$2b$10$PLACEHOLDER_HASH', 'admin');

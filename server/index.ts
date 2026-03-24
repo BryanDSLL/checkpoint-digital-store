@@ -162,8 +162,8 @@ app.get('/api/jogos/:slug', async (req: express.Request, res: express.Response) 
         COALESCE(
           (SELECT json_agg(jsonb_build_object(
             'id', la.id,
-            'nomeLoja', la.nome_loja,
-            'logoLoja', la.logo_loja,
+            'nomeLoja', COALESCE(par.nome, la.nome_loja),
+            'logoLoja', COALESCE(par.logo_url, la.logo_loja),
             'urlAfiliado', la.url_afiliado,
             'urlScraping', la.url_scraping,
             'codigoCupom', la.codigo_cupom,
@@ -173,8 +173,13 @@ app.get('/api/jogos/:slug', async (req: express.Request, res: express.Response) 
             'destaque', la.destaque,
             'plataformaId', la.plataforma_id,
             'parceiroId', la.parceiro_id,
-            'ordem', la.ordem
-          )) FROM loja.links_afiliado la WHERE la.jogo_id = j.id AND la.ativo = TRUE), '[]'
+            'ordem', la.ordem,
+            'parceiro', CASE WHEN par.id IS NOT NULL THEN 
+              jsonb_build_object('id', par.id, 'nome', par.nome, 'slug', par.slug, 'logoUrl', par.logo_url, 'logoBase64', par.logo_base64)
+            ELSE NULL END
+          )) FROM loja.links_afiliado la 
+          LEFT JOIN loja.parceiros par ON par.id = la.parceiro_id
+          WHERE la.jogo_id = j.id AND la.ativo = TRUE), '[]'
         ) AS links_afiliado
       FROM loja.jogos j
       WHERE j.slug = $1 AND j.ativo = TRUE
@@ -423,17 +428,17 @@ app.delete('/api/admin/jogos/:id', authMiddleware, async (req: express.Request, 
 // ──────────────────────────────────────────────
 
 app.get('/api/admin/parceiros', authMiddleware, async (_req: express.Request, res: express.Response) => {
-  const r = await pool.query(`SELECT *, tem_scraping as "temScraping" FROM loja.parceiros ORDER BY nome`);
+  const r = await pool.query(`SELECT *, tem_scraping as "temScraping", logo_base64 as "logoBase64" FROM loja.parceiros ORDER BY nome`);
   res.json(r.rows);
 });
 
 app.post('/api/admin/parceiros', authMiddleware, async (req: express.Request, res: express.Response) => {
-  const { nome, logoUrl, temScraping } = req.body;
+  const { nome, logoUrl, logoBase64, temScraping } = req.body;
   const slug = nome.toLowerCase().replace(/[^a-z0-9]/g, '-');
   try {
     const r = await pool.query(
-      `INSERT INTO loja.parceiros (nome, slug, logo_url, tem_scraping) VALUES ($1, $2, $3, $4) RETURNING id`,
-      [nome, slug, logoUrl, temScraping || false]
+      `INSERT INTO loja.parceiros (nome, slug, logo_url, logo_base64, tem_scraping) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [nome, slug, logoUrl, logoBase64, temScraping || false]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) {
@@ -443,7 +448,7 @@ app.post('/api/admin/parceiros', authMiddleware, async (req: express.Request, re
 
 app.put('/api/admin/parceiros/:id', authMiddleware, async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
-  const { nome, logoUrl, temScraping, ativo } = req.body;
+  const { nome, logoUrl, logoBase64, temScraping, ativo } = req.body;
   try {
     let slug = undefined;
     if (nome) slug = nome.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -453,10 +458,11 @@ app.put('/api/admin/parceiros/:id', authMiddleware, async (req: express.Request,
         nome = COALESCE($1, nome), 
         slug = COALESCE($2, slug), 
         logo_url = COALESCE($3, logo_url), 
-        tem_scraping = COALESCE($4, tem_scraping), 
-        ativo = COALESCE($5, ativo) 
-      WHERE id = $6`,
-      [nome, slug, logoUrl, temScraping, ativo, id]
+        logo_base64 = COALESCE($4, logo_base64), 
+        tem_scraping = COALESCE($5, tem_scraping), 
+        ativo = COALESCE($6, ativo) 
+      WHERE id = $7`,
+      [nome, slug, logoUrl, logoBase64, temScraping, ativo, id]
     );
     res.json({ ok: true });
   } catch (e) {
